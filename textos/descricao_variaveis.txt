@@ -1,0 +1,26 @@
+Fatec Baixada Santista
+Ciência de Dados
+Teoria do Aprendizado Estatístico
+
+Lucas Marques, João Pedro Dias, Timóteo Blank
+
+Tabela de variáveis
+
+A presente tabela indica as variáveis que serão trabalhadas ao longo do Projeto Integrador III. Consiste em dados de medição oceânica comumente usadas para prever o fluxo marítimo, inundações, ressacas e fenômenos similares.
+
+O dataset foi extraído do ERA5, conjunto de dados climáticos global, programa de obtenção de imagens de satélite do European Centre for Medium-Range Weather Forecasts (ECMWF). Este instrumento fornece estimativas horárias para um grande número de grandezas atmosféricas, de ondas oceânicas e da superfície terrestre.
+
+Para este estudo, foram coletados os dados de Vento, pressão média do mar, inclinação média das ondas e etc. para prever a variável de altura máxima das ondas ao longo da região costeira de Santos com dados de 2025.
+
+Nome;Classificação;Unidade de Medida;Descrição
+data_hora;data/hora;ano/mês/dia/hora;Variável temporal, indica o momento da observação
+vento_u;quantitativo;m/s^-1;Velocidade horizontal do ar se movendo em direção ao leste, a uma altura de dez metros acima da superfície da Terra
+vento_v;quantitativo;m/s^-1;Velocidade horizontal do ar se movendo em direção ao norte, a uma altura de dez metros acima da superfície da Terra
+periodo_onda_pico;quantitativo;segundos;Período das ondas oceânicas mais energéticas geradas pelos ventos locais e associadas à ondulação
+pressao_media_mar;quantitativo;pascal;Medida do peso que todo o ar em uma coluna vertical acima de um ponto na superfície da Terra teria, se esse ponto estivesse localizado ao nível médio do mar
+direcao_media_onda;quantitativo;graus;Média de todas as frequências e direções do espectro de ondas bidimensional
+coef_arrasto_onda;quantitativo;sem dimensão;Resistência que as ondas oceânicas exercem sobre a atmosfera
+assimetria_espectral_onda;quantitativo;sem dimensão;Medida estatística usada para prever ondas extremas ou inesperadas do oceano/mar. Descreve a natureza da elevação da superfície do mar e como ela é afetada pelas ondas geradas pelos ventos locais e pela ondulação
+inclinacao_media_quadratica_onda;quantitativo;sem dimensão;Função da velocidade do vento sob certas hipóteses estatísticas. Quanto maior a inclinação, mais íngremes são as ondas
+altura_maxima_onda;quantitativo;metros;Estimativa da altura da onda individual mais alta esperada dentro de um intervalo de 20 minutos
+
