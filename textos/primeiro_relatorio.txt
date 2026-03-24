@@ -1,0 +1,160 @@
+﻿Identificou-se que a variável data_hora estava no formato chr pois o primeiro horário do dia divergia em relação ao restante dos horários ao longo do dia. Enquanto o primeiro horário do dia era "aa-mm-dd", os horários seguintes eram "aa-mm-dd 00:00:00". Por esta razão, para padronizar o formato, utilizou-se o seguinte ajuste:
+
+
+has_time <- grepl("\\d{2}:\\d{2}:\\d{2}", df$data_hora) 
+# Cria um vetor TRUE/FALSE: TRUE se a linha tiver horário (ex: "10:30:00"), FALSE se não tiver
+
+
+df$data_hora_parsed <- as.POSIXct(NA) 
+# Cria uma coluna nova chamada data_hora_parsed, preenchida com NA (vazio), no formato data+hora
+
+
+df$data_hora_parsed[has_time] <- as.POSIXct(df$data_hora[has_time], format = "%Y-%m-%d %H:%M:%S") 
+# Nas linhas onde has_time é TRUE (tem horário), parseia usando o formato completo: "2024-01-15 10:30:00"
+
+
+df$data_hora_parsed[!has_time] <- as.POSIXct(df$data_hora[!has_time], format = "%Y-%m-%d") 
+# Nas linhas onde has_time é FALSE (sem horário), parseia usando só a data: "2024-01-16" 
+# O ! inverte o TRUE/FALSE, então !has_time seleciona as linhas SEM horário
+
+
+df$data_hora <- df$data_hora_parsed 
+# Substitui a coluna original (que era texto bagunçado) pela coluna nova (já no formato correto)
+
+
+df$data_hora_parsed <- NULL 
+# Deleta a coluna temporária que não precisamos mais # NULL em R significa "apagar"
+
+
+Consequentemente, ao verificar a estrutura do data frame str(df), o padrão foi homogenizado do modelo (1) para o (2):
+$ data_hora                       : chr  "2025-01-01" "2025-01-01 01:00:00" "2025-01-01 02:00:00" "2025-01-01 03:00:00" ...
+$ data_hora                       : POSIXct, format: "2025-01-01 00:00:00" "2025-01-01 01:00:00" ...
+
+
+Métricas
+
+
+Diversas métricas foram aplicadas à variável target (altura máxima da onda) e obteve-se:
+
+
+mean(y) # Média aritmética
+2.26786326376815
+
+
+
+
+mean(y, trim = 0.1) # Média aparada
+2.20076244674861
+
+
+median(y) #mediana
+2.12791728973388
+
+
+sd(y) #desvio padrão
+0.754065183564615
+
+
+var(y) #variância
+0.568614301064337
+
+
+mean(abs(y - mean(y))) #desvio absoluto médio
+0.588997861754034
+
+
+mad(y, constant = 1) #MAD
+0.444931030273435
+
+
+diff(range(y)) #amplitude
+4.86312127113342
+
+
+quantile(y, prob = 0.25) #quartil
+25%: 1.72939419746399
+
+
+
+
+quantile(y, prob = 0.90) #percentil
+90%: 3.37112503051758
+
+
+
+
+iqr <- IQR(y) #amplitude interquartílica
+iqr
+0.936100244522098
+
+
+Gerou-se o Boxplot com os outliers de y e, para ter também uma visualização mais limpa do gráfico, foi feito outro boxplot com outline=FALSE para eliminar os dados fora dos limites superiores e inferiores.
+
+
+boxplot(y,
+main="Exemplo de Boxplot",
+ylab="Valores",
+col="lightblue",
+border="darkblue",
+notch=F,
+outline=FALSE)
+
+
+Para gerar uma comparação lado-a-lado dos gráficos, utilizou-se par(mfrow=c(1,2)):
+
+
+par(mfrow=c(1,2))
+boxplot(y,
+main="Exemplo de Boxplot",
+ylab="Valores",
+col="lightblue",
+border="darkblue",
+notch=F)
+boxplot(y,
+main="Exemplo de Boxplot",
+ylab="Valores",
+col="lightblue",
+border="darkblue",
+notch=F,
+outline=FALSE)
+
+
+Realizou-se a visualização da distribuição de y com histogramas. Visualizamos três histogramas com os métodos de determinação do número de intervalos Sturges, Scott e Freedman-Diaconisnn.
+
+
+options(repr.plot.width = 14, repr.plot.height = 7)
+par(mfrow=c(1,3))
+hist(y, breaks=nclass.Sturges(y))
+hist(y, breaks=nclass.FD(y))
+hist(y, breaks=nclass.scott(y))
+
+
+Regra de Sturges:
+
+
+Fórmula -> k = ⌈1 + log₂(n)⌉
+Como funciona -> Derivada de uma suposição de distribuição normal binomial. Cresce muito lentamente com n — tende a subestimar o número ideal de bins em amostras grandes.
+Quando usar -> Amostras pequenas (n < 200), dados aproximadamente simétricos e normais. Evitar em distribuições assimétricas ou com caudas longas.
+
+
+Regra de Scott:
+
+
+Fórmula -> h = 3,49 · σ · n^(-1/3)    k = ⌈(max − min) / h⌉
+h = largura do bin  |  σ = desvio padrão da amostra  |  n = tamanho da amostra
+Como funciona -> Determina a largura ótima do bin (não o número diretamente). Baseia-se na minimização do erro quadrático médio integrado do estimador de densidade. Depende do desvio padrão, então é sensível a outliers.
+Quando usar ->Dados contínuos com distribuição próxima da normal e sem outliers extremos. Boa para análise estatística rigorosa.
+
+
+Regra de Freedman-Diaconis:
+
+
+Fórmula -> h = 2 · IQR · n^(-1/3)    k = ⌈(max − min) / h⌉
+Como funciona -> Semelhante à de Scott, mas substitui o desvio padrão pelo IQR — uma medida muito menos sensível a valores extremos. É considerada a melhor escolha automática em muitos contextos modernos (usada como padrão no NumPy e matplotlib).
+Quando usar -> Dados com outliers, distribuições assimétricas, ou quando a forma da distribuição é desconhecida. Preferir quando os dados "do mundo real" não são normais.
+
+
+Plotamos histogramas e qq-plots de cada variável para ver quais seguem distribuição normal. Visualmente, apenas vento_u, vento_v e pressao_media_mar se aproximavam de uma normal sem assimetrias relevantes. Verificamos os outliers para essas variáveis e decidimos que apesar de haverem outliers eles não eram tão extremos nem tão numerosos, logo, utilizamos a regra de scott para determinar o número de intervalos dessas variáveis e utilizamos a regra de freedman-diaconis para todo o restante.
+
+
+Plotamos os histogramas e adicionamos as colunas qualitativas ordinais com os intervalos das variáveis quantitativas ao dataframe.
